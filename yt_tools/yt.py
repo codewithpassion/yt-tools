@@ -61,12 +61,12 @@ def get_comments(youtube, video_id):
 
 def main_function(url, options):
     # Load environment variables from .env file
-    load_dotenv(os.path.expanduser("~/.config/fabric/.env"))
+    load_dotenv(os.path.expanduser("~/.config/yt-tools/.env"))
 
     # Get YouTube API key from environment variable
     api_key = os.getenv("YOUTUBE_API_KEY")
     if not api_key:
-        print("Error: YOUTUBE_API_KEY not found in ~/.config/fabric/.env")
+        print("Error: YOUTUBE_API_KEY not found in ~/.config/yt-tools/.env or the environment. Please set it and try again.")
         return
 
     # Extract video ID from URL
