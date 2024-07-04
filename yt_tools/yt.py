@@ -10,7 +10,15 @@ import isodate
 import argparse
 import io
 import csv
+import youtube_dl
 
+def get_channel_videos(channel_url):
+    ydl_opts = {'ignoreerrors': True, 'extract_flat': True, 'quiet': True}
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        result = ydl.extract_info(channel_url, download=False)
+        if 'entries' in result:
+            return [video['url'] for video in result['entries']]
+    return []
 
 def get_video_id(url):
     # Extract video ID from URL
@@ -61,21 +69,29 @@ def get_comments(youtube, video_id):
 
 def main_function(url, options):
     # Load environment variables from .env file
-    load_dotenv(os.path.expanduser("~/.config/fabric/.env"))
+    load_dotenv(os.path.expanduser("~/.config/yt-tools/.env"))
 
     # Get YouTube API key from environment variable
     api_key = os.getenv("YOUTUBE_API_KEY")
     if not api_key:
-        print("Error: YOUTUBE_API_KEY not found in ~/.config/fabric/.env")
+        print("Error: YOUTUBE_API_KEY not found in ~/.config/yt-tools/.env")
         return
 
-    # Extract video ID from URL
-    video_id = get_video_id(url)
-    if not video_id:
-        print("Invalid YouTube URL")
+    if not options.channel_list:
+        # Extract video ID from URL
+        video_id = get_video_id(url)
+        if not video_id:
+            print("Invalid YouTube URL")
+            return
+    else:
+        videos = get_channel_videos(options.url)
+        for video in videos:
+            print(f"https://www.youtube.com/watch?v={video}")
         return
+
 
     try:
+        
         # Initialize the YouTube API client
         youtube = build("youtube", "v3", developerKey=api_key)
 
@@ -127,7 +143,7 @@ def main_function(url, options):
         elif options.transcript_ts:
             if options.transcript_ts == 'csv':
                 print(transcript_ts_text.encode('utf-8').decode('unicode-escape'))
-            else:
+            elif options.transcript_ts == 'json':
                 transcript_ts_json = json.dumps(transcript_list, indent=2)
                 print(transcript_ts_json)
         elif options.comments:
@@ -154,10 +170,12 @@ def main():
     parser.add_argument('url', help='YouTube video URL')
     parser.add_argument('--duration', action='store_true', help='Output only the duration')
     parser.add_argument('--transcript', action='store_true', help='Output only the transcript')
-    parser.add_argument('--transcript-ts', choices=['csv', 'json'], default='csv', help='Output only the transcript with timestamps')
+    parser.add_argument('--transcript-ts', choices=['csv', 'json'], help='Output only the transcript with timestamps')
     parser.add_argument('--comments', action='store_true', help='Output the comments on the video')
     parser.add_argument('--metadata', action='store_true', help='Output the video metadata')
     parser.add_argument('--lang', default='en', help='Language for the transcript (default: English)')
+    parser.add_argument('--channel-list', action='store_true', help='Output the list of videos from a channel/playlist')
+    
     
     args = parser.parse_args()
 
