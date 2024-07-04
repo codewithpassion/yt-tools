@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "yt-tools"
+version = "0.1.0"
+description = "yt-tools extracts metadata about a video, such as the transcript, the video\'s duration, and comments. Based on the yt tool from fabric (https://github.com/danielmiessler/fabric)"
+authors = ["Dominik Fretz <info@codewithpassion.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+google-api-python-client = "^2.136.0"
+youtube-transcript-api = "^0.6.2"
+python-dotenv = "^1.0.1"
+
+
+isodate = "^0.6.1"
+argparse = "^1.4.0"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Creates python "binaries"
+[tool.poetry.scripts]
+yt-tools = 'yt_tools:main_yt'
