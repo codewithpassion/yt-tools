@@ -4,7 +4,7 @@ A command line tool to get all kind of information about a youtube video.
 
 ## Acknowledgements
 
-This project is based on the `yt` tool from [https://github.com/danielmiessler/fabric](fabric) by Daniel Miessler.
+This project is based on the `yt` tool from [fabric](https://github.com/danielmiessler/fabric) by Daniel Miessler.
 
 ## Installation
 
