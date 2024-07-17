@@ -116,7 +116,7 @@ def main_function(url, options):
 
         # Get comments if the flag is set
         comments = []
-        if options.comments:
+        if options.comments or 'comments' in options.json or 'all' in options.json:
             comments = get_comments(youtube, video_id)
 
         # Output based on options
@@ -134,6 +134,26 @@ def main_function(url, options):
             print(json.dumps(comments, indent=2))
         elif options.metadata:
             print(json.dumps(metadata, indent=2))
+        elif options.json:
+            output = {}
+            if 'all' in options.json:
+                output['transcript'] = transcript_text
+                output['transcript-ts'] = transcript_list
+                output['duration'] = duration_minutes
+                output['comments'] = comments
+                output['metadata'] = metadata
+            else:
+                for option in options.json:
+                    if option == 'transcript':
+                        output['transcript'] = transcript_text
+                    if option == 'transcript-ts':
+                        output['transcript-ts'] = transcript_list
+                    if option == 'comments':
+                        output['comments'] = comments
+                    if option == 'meta':
+                        output['metadata'] = metadata
+                    
+            print(json.dumps(output, indent=2))
         else:
             # Create JSON object with all data
             output = {
@@ -147,18 +167,27 @@ def main_function(url, options):
     except HttpError as e:
         print(f"Error: Failed to access YouTube API. Please check your YOUTUBE_API_KEY and ensure it is valid: {e}")
 
-
+def json_type(arg_value):
+    choices = ['all', 'meta', 'comments', 'transcript', 'transcript-ts']
+    values = arg_value.split(',')
+    for value in values:
+        if value not in choices:
+            raise argparse.ArgumentTypeError(f"Invalid choice: {value} (choose from {choices})")
+    return values
+            
 def main():
     parser = argparse.ArgumentParser(
         description='yt-tools extracts metadata about a video, such as the transcript, the video\'s duration, and comments. Based on the yt tool from fabric (https://github.com/danielmiessler/fabric)')
+    
     parser.add_argument('url', help='YouTube video URL')
     parser.add_argument('--duration', action='store_true', help='Output only the duration')
     parser.add_argument('--transcript', action='store_true', help='Output only the transcript')
-    parser.add_argument('--transcript-ts', choices=['csv', 'json'], default='csv', help='Output only the transcript with timestamps')
+    parser.add_argument('--transcript-ts', choices=['csv', 'json'], nargs='?', const='csv', help='Output only the transcript with timestamps')
     parser.add_argument('--comments', action='store_true', help='Output the comments on the video')
     parser.add_argument('--metadata', action='store_true', help='Output the video metadata')
     parser.add_argument('--lang', default='en', help='Language for the transcript (default: English)')
-    
+    parser.add_argument('--json', type=json_type, help='Specify the type of JSON output (choose from all,meta,comments,transcript,transcript-ts)')
+     
     args = parser.parse_args()
 
     if args.url is None:
