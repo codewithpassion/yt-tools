@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yt-tools"
-version = "0.1.0"
+version = "0.1.1"
 description = "yt-tools extracts metadata about a video, such as the transcript, the video's duration, and comments. Based on the yt tool from fabric (https://github.com/danielmiessler/fabric)"
 authors = ["Dominik Fretz <info@codewithpassion.com>"]
 readme = "README.md"
